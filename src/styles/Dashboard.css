@@ -1,0 +1,45 @@
+/* src/styles/Dashboard.css */
+
+.dashboard-container {
+  background: #f4faff;
+  min-height: 100vh;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.welcome-text {
+  font-size: 28px;
+  color: #003087;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
+
+.welcome-text span {
+  font-weight: 800;
+}
+
+.cards-grid {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.dashboard-card {
+  background: white;
+  padding: 24px;
+  width: 280px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-icon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 12px;
+}
