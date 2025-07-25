@@ -2,12 +2,12 @@ import React from 'react';
 import MainLayout from '../components/layout/MainLayout';
 import '../styles/Dashboard.css';
 const Dashboard: React.FC = () => {
-  const user = { document: 'Pablo Gonzales' }; // Simulación
+  const user = { document: 'NOHORA ACEVEDO' }; // Simulación
 
   return (
     <MainLayout>
       <div className="dashboard-container">
-        <h2 className="welcome-text">Bienvenido, <span>{user.document}</span></h2>
+        <h2 className="welcome-text">Bienvenid@, <span>{user.document}</span></h2>
 
         <div className="cards-grid">
           <div className="dashboard-card">
