@@ -13,7 +13,7 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0',
     port: 8080,
-    allowedHosts: ['sivigila-portal-frontend-1081794814967.europe-west1.run.app'],
+    allowedHosts: ['https://sivigila-portal-frontend-1081794814967.northamerica-south1.run.app'],
   },
   resolve: {
     alias: {
