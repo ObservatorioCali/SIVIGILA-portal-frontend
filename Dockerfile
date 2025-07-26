@@ -1,18 +1,16 @@
-# Dockerfile para frontend Vite en Cloud Run
-FROM node:18-alpine
-
+FROM node:18-alpine as builder
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci
 COPY . .
-
-RUN npm install
 RUN npm run build
 
-# Instala vite globalmente para usar `vite preview`
-RUN npm install -g vite
-
-# Usa el puerto que Cloud Run define
-ENV PORT=8080
+# Etapa de producción
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY server.js ./
+RUN npm install express
 
 EXPOSE 8080
-
-CMD ["vite", "preview", "--port", "8080", "--host"]
+CMD ["node", "server.js"]
