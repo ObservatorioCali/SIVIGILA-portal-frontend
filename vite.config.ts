@@ -31,7 +31,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false, // Desactiva sourcemaps en producción para menor tamaño
-    minify: 'terser',
+    minify: 'esbuild', // Usa esbuild en lugar de terser (más rápido)
     rollupOptions: {
       output: {
         // Optimización de chunks
@@ -56,4 +56,5 @@ export default defineConfig({
   
   // Configuración de variables de entorno
   envPrefix: 'VITE_', // Solo variables que empiecen con VITE_ serán expuestas al cliente
-    })
+ 
+})
