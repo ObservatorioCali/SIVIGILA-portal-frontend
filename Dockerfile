@@ -17,8 +17,14 @@ COPY . .
 # Construye la aplicación
 RUN npm run build
 
+# Instala express para servir los archivos en producción
+RUN npm install express
+
 # Limpia dependencias de desarrollo para reducir el tamaño de la imagen
 RUN npm prune --production
+
+# Copia el servidor
+COPY server.js ./
 
 # Expone el puerto que usa Cloud Run
 EXPOSE 8080
@@ -27,5 +33,5 @@ EXPOSE 8080
 ENV NODE_ENV=production
 ENV PORT=8080
 
-# Ejecuta la aplicación en modo preview
-CMD ["npm", "run", "preview"]
+# Ejecuta el servidor Express
+CMD ["node", "server.js"]

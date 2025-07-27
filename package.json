@@ -7,9 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "start": "serve -s dist -l tcp://0.0.0.0:$PORT",
-    "preview:local": "vite preview",
-    "preview": "vite preview --host 0.0.0.0 --port 8080"
+    "start": "serve -s dist -l tcp://0.0.0.0:$PORT"  
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
