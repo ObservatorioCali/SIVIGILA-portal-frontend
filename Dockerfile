@@ -1,11 +1,23 @@
-FROM node:18-alpine as builder
+FROM node:18-alpine
+
 WORKDIR /app
+
+# Copia archivos de configuración
 COPY package*.json ./
+COPY vite.config.ts ./
+COPY tsconfig.json ./
+
+# Instala dependencias
 RUN npm ci
+
+# Copia código fuente
 COPY . .
+
+# Build de la aplicación
 RUN npm run build
 
-FROM node:18-alpine
-RUN npm install -g serve
-COPY --from=builder /app/dist /dist
-CMD ["serve", "-s", "dist", "-l", "tcp://0.0.0.0:$PORT"]
+# Expone puerto para GCP
+EXPOSE 8080
+
+# Comando para ejecutar en producción
+CMD ["npm", "run", "preview"]
