@@ -4,16 +4,20 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: true,
+    allowedHosts: [
+      'sivigila-portal-frontend-1081794814967.southamerica-east1.run.app'
+    ],
     port: 5173,
     watch: {
       usePolling: true,
     },
   },
   preview: {
-    host: '0.0.0.0',
-    port: 8080,
-    allowedHosts: ['sivigila-portal-frontend-1081794814967.europe-west1.run.app'],
+    host: true,
+    allowedHosts: [
+      'sivigila-portal-frontend-1081794814967.southamerica-east1.run.app'
+    ]
   },
   resolve: {
     alias: {
