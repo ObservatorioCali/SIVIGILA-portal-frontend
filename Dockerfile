@@ -17,8 +17,11 @@ COPY . .
 # Construye la aplicación
 RUN npm run build
 
-# Instala express para servir los archivos en producción
-RUN npm install express
+# Verifica que el build fue exitoso
+RUN ls -la dist/ && test -f dist/index.html
+
+# NO instalar express - usar servidor HTTP nativo
+# RUN npm install express
 
 # Limpia dependencias de desarrollo para reducir el tamaño de la imagen
 RUN npm prune --production
