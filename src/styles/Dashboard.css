@@ -31,11 +31,18 @@
   width: 280px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: 0.3s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .dashboard-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 48, 135, 0.15);
+  border: 2px solid #003087;
+}
+
+.dashboard-card:active {
+  transform: translateY(-2px);
 }
 
 .card-icon {

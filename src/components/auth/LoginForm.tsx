@@ -1,33 +1,42 @@
 import '../../styles/LoginForm.css';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
-import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 
 const SITE_KEY = '6LcWKI0rAAAAAPBa7C8vteFCHDQMSR0moyC0E-Sp';
 
 export default function LoginForm() {
-  const [username, setUsername] = useState('');
+  const [codigo, setCodigo] = useState('');
   const [password, setPassword] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    // Validar que el código sea numérico y tenga entre 6-12 dígitos
+    if (!/^\d{6,12}$/.test(codigo)) {
+      setError('El código debe tener entre 6 y 12 dígitos numéricos');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post('http://localhost:3000/auth/login', {
-        username,
+      await login({
+        codigo,
         password,
         recaptchaToken,
       });
 
-      localStorage.setItem('token', response.data.token);
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+      setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -38,11 +47,18 @@ export default function LoginForm() {
       <form className="login-card" onSubmit={handleLogin}>
         <img src="/logo.png" alt="Logo SIVIGILA" />
         <h1>Bienvenidos al portal SIVIGILA CALI</h1>
-        <label>Usuario</label>
+        <label>Código de Usuario</label>
         <input
           type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={codigo}
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, ''); // Solo números
+            if (value.length <= 12) {
+              setCodigo(value);
+            }
+          }}
+          placeholder="Ej: 76001001 (cod_pre+cod_sub)"
+          maxLength={12}
           required
         />
 

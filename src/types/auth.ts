@@ -6,14 +6,14 @@ export interface User {
   }
   
   export enum UserRole {
-    SECRETARIA_SALUD = 'secretaria_salud',
-    REFERENTE_SIVIGILA = 'referente_sivigila',
+    ADMIN = 'admin',
     UPGD_UI = 'upgd_ui',
   }
   
   export interface LoginRequest {
     codigo: string;
     password: string;
+    recaptchaToken: string;
   }
   
   export interface LoginResponse {

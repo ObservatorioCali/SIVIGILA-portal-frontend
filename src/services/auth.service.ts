@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { LoginRequest, LoginResponse, User } from '@/types/auth';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 class AuthService {
   private baseURL = API_URL;

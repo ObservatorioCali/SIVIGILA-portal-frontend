@@ -19,18 +19,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuthState = async () => {
     try {
-      const token = authService.getToken();
-      const storedUser = authService.getUser();
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
       if (token && storedUser) {
-        // Validar token con el servidor
-        const response = await authService.validateToken(token);
-        if (response.valid) {
-          authService.setAuthToken(token);
-          setUser(response.user);
-        } else {
-          logout();
-        }
+        // Simplemente verificar que existen, sin validar con servidor
+        setUser(JSON.parse(storedUser));
       }
     } catch (error) {
       console.error('Error validating auth state:', error);
@@ -44,10 +38,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.login(credentials);
       
-      // Guardar token y usuario
-      authService.saveToken(response.access_token);
-      authService.saveUser(response.user);
-      authService.setAuthToken(response.access_token);
+      // Guardar token y usuario con las mismas claves que LoginForm
+      localStorage.setItem('token', response.access_token);
+      localStorage.setItem('user', JSON.stringify(response.user));
       
       setUser(response.user);
     } catch (error) {
@@ -57,9 +50,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    authService.removeToken();
-    authService.removeUser();
-    authService.removeAuthToken();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 

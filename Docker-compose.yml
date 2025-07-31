@@ -8,7 +8,17 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - VITE_APP_NAME=SIVIGILA Portal
+      - VITE_RECAPTCHA_SITE_KEY=6LcWKI0rAAAAAEZKS5bb51NitBWEE6_YrqDA5zPS
     volumes:
       - .:/app
       - /app/node_modules
+    networks:
+      - frontend-network
+
+networks:
+  frontend-network:
+    driver: bridge
 
