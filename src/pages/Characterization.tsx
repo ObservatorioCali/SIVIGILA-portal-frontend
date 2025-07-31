@@ -22,7 +22,6 @@ const Characterization: React.FC = () => {
   
   // Verificar rol del usuario
   const isAdmin = user?.role === UserRole.ADMIN;
-  const isUPGD_UI = user?.role === UserRole.UPGD_UI;
 
   // Estados para los nuevos modales
   const [showDataModal, setShowDataModal] = useState<boolean>(false);
