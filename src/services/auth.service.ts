@@ -16,6 +16,28 @@ class AuthService {
       );
       return response.data;
     } catch (error: any) {
+      // Si falla el login con reCAPTCHA, intentar el login simplificado como fallback
+      if (error.response?.status === 400 && error.response?.data?.message?.includes('recaptcha')) {
+        console.warn('reCAPTCHA fallido, intentando login simplificado...');
+        return this.loginSimple(credentials);
+      }
+      throw new Error(
+        error.response?.data?.message || 'Error en el inicio de sesión'
+      );
+    }
+  }
+
+  async loginSimple(credentials: Omit<LoginRequest, 'recaptchaToken'>): Promise<LoginResponse> {
+    try {
+      const response = await axios.post<LoginResponse>(
+        `${this.baseURL}/auth/login-simple`,
+        {
+          codigo: credentials.codigo,
+          password: credentials.password
+        }
+      );
+      return response.data;
+    } catch (error: any) {
       throw new Error(
         error.response?.data?.message || 'Error en el inicio de sesión'
       );

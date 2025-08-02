@@ -1,9 +1,11 @@
 export interface User {
-    id: number;
-    codigo: string;
-    role: UserRole;
-    institucion: string;
-  }
+  id: number;
+  codigo: string;
+  cod_pre: string;
+  cod_sub: string;
+  role: UserRole;
+  institucion: string;
+}
   
   export enum UserRole {
     ADMIN = 'admin',

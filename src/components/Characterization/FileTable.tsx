@@ -52,14 +52,25 @@ const FileTable: React.FC<FileTableProps> = ({
       });
     }
     
-    // Si es solo una fecha (YYYY-MM-DD), añadir tiempo del mediodía
-    const date = new Date(dateString + 'T12:00:00');
-    if (isNaN(date.getTime())) return 'Fecha inválida';
-    return date.toLocaleDateString('es-CO', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
+    // Si es solo una fecha (YYYY-MM-DD), parseamos directamente los componentes
+    // para evitar problemas de zona horaria
+    const dateParts = dateString.split('-');
+    if (dateParts.length === 3) {
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1; // Los meses en Date son 0-indexados
+      const day = parseInt(dateParts[2]);
+      
+      const date = new Date(year, month, day);
+      if (isNaN(date.getTime())) return 'Fecha inválida';
+      
+      return date.toLocaleDateString('es-CO', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+    
+    return 'Formato de fecha inválido';
   };
 
   const getStatusText = (status: string) => {

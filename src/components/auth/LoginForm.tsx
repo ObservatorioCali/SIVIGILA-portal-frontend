@@ -1,10 +1,11 @@
 import '../../styles/LoginForm.css';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useAuth } from '../../contexts/AuthContext';
 
-const SITE_KEY = '6LcWKI0rAAAAAPBa7C8vteFCHDQMSR0moyC0E-Sp';
+const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LcWKI0rAAAAAPBa7C8vteFCHDQMSR0moyC0E-Sp';
+const RECAPTCHA_ENABLED = import.meta.env.VITE_RECAPTCHA_ENABLED !== 'false'; // Por defecto habilitado
 
 export default function LoginForm() {
   const [codigo, setCodigo] = useState('');
@@ -12,17 +13,31 @@ export default function LoginForm() {
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  // Resetear el reCAPTCHA cuando el componente se monta
+  useEffect(() => {
+    if (RECAPTCHA_ENABLED && recaptchaRef.current) {
+      recaptchaRef.current.reset();
+    }
+    setRecaptchaToken('');
+  }, []);
+
+  // Limpiar errores cuando el usuario interactúa
+  const clearError = () => {
+    if (error) setError('');
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    // Validar que el código sea numérico y tenga entre 6-12 dígitos
-    if (!/^\d{6,12}$/.test(codigo)) {
-      setError('El código debe tener entre 6 y 12 dígitos numéricos');
+    // Validar que el código tenga entre 6-15 caracteres (letras y números)
+    if (!/^[a-zA-Z0-9]{6,15}$/.test(codigo)) {
+      setError('El código debe tener entre 6 y 15 caracteres (letras y números)');
       setLoading(false);
       return;
     }
@@ -31,12 +46,17 @@ export default function LoginForm() {
       await login({
         codigo,
         password,
-        recaptchaToken,
+        recaptchaToken: RECAPTCHA_ENABLED ? recaptchaToken : 'development-bypass',
       });
 
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
+      // Resetear reCAPTCHA en caso de error
+      if (RECAPTCHA_ENABLED && recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken('');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,13 +72,15 @@ export default function LoginForm() {
           type="text"
           value={codigo}
           onChange={(e) => {
-            const value = e.target.value.replace(/\D/g, ''); // Solo números
-            if (value.length <= 12) {
+            const value = e.target.value.replace(/[^a-zA-Z0-9]/g, ''); // Solo letras y números
+            if (value.length <= 15) {
               setCodigo(value);
             }
+            clearError();
           }}
-          placeholder="Ej: 76001001 (cod_pre+cod_sub)"
-          maxLength={12}
+          placeholder="Ej: admin000001 o 76001001"
+          maxLength={15}
+          autoComplete="username"
           required
         />
 
@@ -66,21 +88,51 @@ export default function LoginForm() {
         <input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            clearError();
+          }}
+          autoComplete="current-password"
           required
         />
 
         <div className="recaptcha-container">
-          <ReCAPTCHA
-            sitekey={SITE_KEY}
-            onChange={(token) => setRecaptchaToken(token || '')}
-          />
+          {RECAPTCHA_ENABLED ? (
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={SITE_KEY}
+              onChange={(token) => {
+                setRecaptchaToken(token || '');
+                clearError();
+              }}
+              onExpired={() => {
+                setRecaptchaToken('');
+                setError('El reCAPTCHA ha expirado. Por favor, complétalo nuevamente.');
+              }}
+              onError={() => {
+                setRecaptchaToken('');
+                setError('Error al cargar reCAPTCHA. Por favor, recarga la página.');
+              }}
+            />
+          ) : (
+            <div className="recaptcha-disabled">
+              <p style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
+                reCAPTCHA deshabilitado para desarrollo
+              </p>
+            </div>
+          )}
         </div>
         {error && <p className="error">{error}</p>}
 
-        <button type="submit" disabled={loading || !recaptchaToken}>
+        <button type="submit" disabled={loading || (RECAPTCHA_ENABLED && !recaptchaToken)}>
           {loading ? 'Ingresando...' : 'Ingresar'}
         </button>
+        
+        {RECAPTCHA_ENABLED && !recaptchaToken && (
+          <p className="recaptcha-warning">
+            Por favor, completa el reCAPTCHA para continuar
+          </p>
+        )}
       </form>
     </div>
   );

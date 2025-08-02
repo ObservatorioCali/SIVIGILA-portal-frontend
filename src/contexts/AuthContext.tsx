@@ -3,6 +3,15 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User, LoginRequest, AuthContextType } from '@/types/auth';
 import { authService } from '@/services/auth.service';
 
+// Declaración de tipo para reCAPTCHA global
+declare global {
+  interface Window {
+    grecaptcha?: {
+      reset: () => void;
+    };
+  }
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
@@ -19,8 +28,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuthState = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
+      const token = localStorage.getItem('sivigila_token');
+      const storedUser = localStorage.getItem('sivigila_user');
 
       if (token && storedUser) {
         // Simplemente verificar que existen, sin validar con servidor
@@ -38,9 +47,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.login(credentials);
       
-      // Guardar token y usuario con las mismas claves que LoginForm
-      localStorage.setItem('token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // Guardar token y usuario con las mismas claves que authService
+      localStorage.setItem('sivigila_token', response.access_token);
+      localStorage.setItem('sivigila_user', JSON.stringify(response.user));
       
       setUser(response.user);
     } catch (error) {
@@ -50,9 +59,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('sivigila_token');
+    localStorage.removeItem('sivigila_user');
     setUser(null);
+    
+    // Limpiar cualquier token de reCAPTCHA que pueda estar en memoria
+    try {
+      // @ts-ignore - Acceso directo al objeto global de reCAPTCHA si existe
+      if (window.grecaptcha) {
+        window.grecaptcha.reset();
+      }
+    } catch (error) {
+      // Ignorar errores de reCAPTCHA
+      console.debug('reCAPTCHA reset not available or failed:', error);
+    }
+    
+    // Opcional: Forzar recarga de la página para resetear completamente el estado
+    // window.location.href = '/';
   };
 
   const value: AuthContextType = {

@@ -7,9 +7,18 @@ interface DataTableModalProps {
   onClose: () => void;
   records: CharacterizationRecord[];
   fileName: string;
+  isFiltered?: boolean;
+  userInfo?: string;
 }
 
-const DataTableModal: React.FC<DataTableModalProps> = ({ isOpen, onClose, records, fileName }) => {
+const DataTableModal: React.FC<DataTableModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  records, 
+  fileName, 
+  isFiltered = false, 
+  userInfo = '' 
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
@@ -115,6 +124,13 @@ const DataTableModal: React.FC<DataTableModalProps> = ({ isOpen, onClose, record
       <div className="excel-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Datos Completos - {fileName}</h2>
+          {isFiltered && (
+            <div className="filter-info">
+              <span className="filter-badge">
+                📋 Filtrado para UPGD: {userInfo}
+              </span>
+            </div>
+          )}
           <button className="close-button" onClick={onClose}>
             ×
           </button>
@@ -144,7 +160,7 @@ const DataTableModal: React.FC<DataTableModalProps> = ({ isOpen, onClose, record
                   <tbody>
                     {currentRecords.map((record, index) => (
                       <tr key={record.id || startIndex + index}>
-                        <td className="row-number">{index + 1}</td>
+                        <td className="row-number">{startIndex + index + 1}</td>
                         {allColumns.map((column) => (
                           <td key={column.key}>
                             {record[column.key as keyof CharacterizationRecord] || ''}

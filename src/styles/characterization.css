@@ -91,34 +91,7 @@ body {
   background: #1a4480;
 }
 
-/* Botón de regreso mejorado - sin fondo, flecha azul */
-.back-to-dashboard-btn {
-  position: absolute;
-  top: 90px;
-  left: 30px;
-  margin-top: 4rem;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  z-index: 100;
-  transition: all 0.3s ease;
-}
 
-.back-to-dashboard-btn:hover {
-  transform: translateX(-3px);
-}
-
-.back-icon-only {
-  width: 50px;
-  height: 50px;
-  filter: brightness(0) saturate(100%) invert(12%) sepia(97%) saturate(1000%) hue-rotate(220deg) brightness(90%) contrast(105%);
-  transition: all 0.3s ease;
-}
-
-.back-to-dashboard-btn:hover .back-icon-only {
-  transform: scale(0.5);
-}
 
 /* Estados de carga mejorados */
 .loading-state, .error-state {
@@ -435,11 +408,6 @@ body {
   
   .char-upload-section {
     margin-bottom: 1.5rem;
-  }
-  
-  .back-to-dashboard-btn {
-    top: 1rem;
-    left: 1rem;
   }
   
   .back-icon-only {
@@ -969,44 +937,10 @@ body {
 }
 
 /* Botón de regreso al Dashboard - Actualizado */
-.back-to-dashboard-btn {
-  position: fixed;
-  top: 100px;
-  left: 2rem;
-  background: linear-gradient(135deg, #002c77 0%, #004d9f 100%);
-  border: none;
-  padding: 1rem;
-  cursor: pointer;
-  z-index: 100;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 44, 119, 0.3);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.back-to-dashboard-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 44, 119, 0.4);
-  background: linear-gradient(135deg, #004d9f 0%, #0066cc 100%);
-}
 
-.back-to-dashboard-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 44, 119, 0.3);
-}
 
-.back-icon-only {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.2s ease;
-  filter: brightness(0) invert(1);
-}
 
-.back-to-dashboard-btn:hover .back-icon-only {
-  transform: scale(1.1);
-}
 
 /* Vista de datos del archivo */
 .data-table-header {

@@ -1,12 +1,13 @@
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/Navbar.css';
 
 export default function Navbar() {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
+    logout();
+    // Forzar navegación completa para resetear el estado
+    window.location.href = '/';
   };
 
   return (

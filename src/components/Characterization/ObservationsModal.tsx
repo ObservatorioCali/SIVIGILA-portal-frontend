@@ -85,6 +85,33 @@ const ObservationsModal: React.FC<ObservationsModalProps> = ({
     }
   };
 
+  const handleClearObservations = async () => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar todas las observaciones? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const result = await CharacterizationService.clearObservations(fileId);
+      console.log(`✅ ${result.observationsDeleted} observaciones eliminadas`);
+      
+      // Notificar al componente padre para que recargue los archivos
+      if (onObservationAdded) {
+        onObservationAdded();
+      }
+      
+      // Cerrar el modal después de limpiar
+      onClose();
+    } catch (error) {
+      console.error('Error al eliminar observaciones:', error);
+      setSubmitError('Error al eliminar las observaciones. Inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -132,7 +159,7 @@ const ObservationsModal: React.FC<ObservationsModalProps> = ({
           )}
 
           {/* Solo usuarios ADMIN pueden marcar como resueltas */}
-                    {user?.role === UserRole.ADMIN && observations && observations.length > 0 && (
+          {user?.role === UserRole.ADMIN && observations && observations.length > 0 && (
             <div className="admin-actions-section">
               <h3>Acciones de Administrador</h3>
               <p className="admin-info">
@@ -150,6 +177,13 @@ const ObservationsModal: React.FC<ObservationsModalProps> = ({
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? 'Procesando...' : '✓ Marcar Observaciones como Resueltas'}
+                </button>
+                <button 
+                  onClick={handleClearObservations}
+                  className="btn-clear-observations"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Procesando...' : '🗑️ Eliminar Todas las Observaciones'}
                 </button>
               </div>
             </div>

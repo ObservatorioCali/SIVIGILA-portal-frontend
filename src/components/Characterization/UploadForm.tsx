@@ -17,6 +17,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadSuccess }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -31,13 +33,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadSuccess }) => {
     
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
+        if (prev >= 95) { // No llegar al 100% hasta que termine realmente
+          return 95;
         }
-        return prev + Math.random() * 15; // Incremento aleatorio para simular carga real
+        return prev + Math.random() * 10; // Incremento más controlado
       });
-    }, 200);
+    }, 300);
 
     return interval;
   };
@@ -49,46 +50,98 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadSuccess }) => {
       return;
     }
 
+    await performUpload();
+  };
+
+  const performUpload = async (isRetry = false) => {
     setLoading(true);
     setError('');
+
+    if (isRetry) {
+      setIsRetrying(true);
+      console.log(`🔄 Reintentando upload (intento ${retryCount + 1}/3)`);
+    }
+
+    // Verificar conectividad antes de intentar el upload
+    console.log('🔍 Verificando conectividad del backend...');
+    const isBackendHealthy = await CharacterizationService.checkHealth();
+    if (!isBackendHealthy) {
+      setError('El servidor no está disponible. Verifique su conexión e inténtelo más tarde.');
+      setLoading(false);
+      setIsRetrying(false);
+      return;
+    }
 
     const progressInterval = simulateProgress();
 
     try {
-      await CharacterizationService.uploadFile(file, period, 1);
+      const response = await CharacterizationService.uploadFile(file!, period, 1);
       
-      // Asegurar que el progreso llegue al 100%
+      // Limpiar el intervalo y asegurar que el progreso llegue al 100%
       clearInterval(progressInterval);
       setUploadProgress(100);
       
-      // Pequeña pausa para mostrar el 100%
-      setTimeout(() => {
-        setShowProgressModal(false);
-        setShowSuccessModal(true);
-        
-        // Limpiar el formulario
-        setFile(null);
-        setPeriod('');
-        
-        // Resetear el input de archivo
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-        if (fileInput) {
-          fileInput.value = '';
-        }
-      }, 500);
+      // Esperar un momento para mostrar el 100% completado
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Cerrar modal de progreso y mostrar modal de éxito
+      setShowProgressModal(false);
+      setShowSuccessModal(true);
+      
+      // Limpiar el formulario
+      setFile(null);
+      setPeriod('');
+      setRetryCount(0); // Reset retry count on success
+      
+      // Resetear el input de archivo
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
 
-    } catch (err) {
+      console.log('✅ Archivo subido exitosamente:', response);
+
+    } catch (err: any) {
+      // Limpiar el intervalo en caso de error
       clearInterval(progressInterval);
       setShowProgressModal(false);
-      setError('Error al subir el archivo. Por favor, inténtelo de nuevo.');
+      setUploadProgress(0);
+      
+      console.error('❌ Error en la subida del archivo:', err);
+      
+      // Determinar si se puede reintentar
+      const canRetry = retryCount < 2 && (
+        err.message.includes('timeout') || 
+        err.message.includes('conexión') || 
+        err.message.includes('red') ||
+        err.message.includes('Network Error')
+      );
+
+      if (canRetry) {
+        setRetryCount(prev => prev + 1);
+        setError(`Error en la conexión. Reintentando automáticamente... (${retryCount + 1}/3)`);
+        
+        // Esperar 2 segundos antes de reintentar
+        setTimeout(() => {
+          performUpload(true);
+        }, 2000);
+      } else {
+        setError(`Error al subir el archivo: ${err.message}`);
+        setRetryCount(0); // Reset retry count on final failure
+      }
     } finally {
       setLoading(false);
+      setIsRetrying(false);
     }
   };
 
   const handleSuccessClose = () => {
+    console.log('🎉 Cerrando modal de éxito y refrescando lista de archivos');
     setShowSuccessModal(false);
-    onUploadSuccess(); // Refrescar la lista de archivos
+    // Asegurar que se ejecute la función de callback
+    if (onUploadSuccess) {
+      onUploadSuccess();
+    }
   };
 
   return (
@@ -158,15 +211,21 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadSuccess }) => {
           className="submit-button-enhanced"
         >
           <span className="button-icon">⬆️</span>
-          {loading ? 'Subiendo...' : 'Subir Archivo'}
+          {loading ? (
+            isRetrying ? `Reintentando... (${retryCount}/3)` : 'Subiendo...'
+          ) : 'Subir Archivo'}
         </button>
       </form>
 
       <ProgressModal
         isOpen={showProgressModal}
         progress={uploadProgress}
-        title="Subiendo Archivo"
-        message="Por favor espere mientras se procesa el archivo..."
+        title={isRetrying ? "Reintentando Subida" : "Subiendo Archivo"}
+        message={
+          isRetrying 
+            ? `Reintentando subida del archivo... (${retryCount}/3)` 
+            : "Por favor espere mientras se procesa el archivo..."
+        }
       />
 
       <SuccessModal

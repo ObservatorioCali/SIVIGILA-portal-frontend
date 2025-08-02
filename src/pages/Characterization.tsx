@@ -46,7 +46,9 @@ const Characterization: React.FC = () => {
   const handleViewAllColumns = async (file: CharacterizationFile) => {
     try {
       setLoadingData(true);
+      // El backend ahora automáticamente filtra según el rol del usuario
       const fileDetails = await CharacterizationService.getFileById(file.id);
+      
       setSelectedFileForModal(fileDetails);
       setRecordsForModal(fileDetails.records || []);
       setShowDataModal(true);
@@ -169,6 +171,8 @@ const Characterization: React.FC = () => {
           onClose={closeDataModal}
           records={recordsForModal}
           fileName={selectedFileForModal?.fileName || ''}
+          isFiltered={!isAdmin}
+          userInfo={!isAdmin && user ? `${user.cod_pre}-${user.cod_sub} (${user.institucion})` : ''}
         />
 
         {/* Modal para ver observaciones */}
