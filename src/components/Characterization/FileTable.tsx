@@ -19,21 +19,33 @@ const FileTable: React.FC<FileTableProps> = ({
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<CharacterizationFile | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteClick = (file: CharacterizationFile) => {
+    // Prevenir múltiples clics durante eliminación
+    if (isDeleting) return;
+    
     setFileToDelete(file);
     setShowConfirmModal(true);
   };
 
   const handleConfirmDelete = async () => {
-    if (fileToDelete && onDelete) {
+    if (fileToDelete && onDelete && !isDeleting) {
+      setIsDeleting(true);
       setShowConfirmModal(false);
-      await onDelete(fileToDelete);
-      setFileToDelete(null);
+      
+      try {
+        await onDelete(fileToDelete);
+      } finally {
+        setIsDeleting(false);
+        setFileToDelete(null);
+      }
     }
   };
 
   const handleCancelDelete = () => {
+    if (isDeleting) return; // No permitir cancelar durante eliminación
+    
     setShowConfirmModal(false);
     setFileToDelete(null);
   };
@@ -149,11 +161,14 @@ const FileTable: React.FC<FileTableProps> = ({
                   )}
                   {onDelete && (
                     <button
-                      className="btn-modern btn-delete-modern"
+                      className={`btn-modern btn-delete-modern ${isDeleting ? 'disabled' : ''}`}
                       onClick={() => handleDeleteClick(file)}
-                      title="Eliminar archivo"
+                      disabled={isDeleting}
+                      title={isDeleting ? "Eliminando..." : "Eliminar archivo"}
                     >
-                      <span className="btn-text">Eliminar</span>
+                      <span className="btn-text">
+                        {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                      </span>
                     </button>
                   )}
                 </div>
