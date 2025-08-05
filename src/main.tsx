@@ -7,6 +7,27 @@ import App from './App.tsx'
 import theme from './theme.ts'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 
+// Configuración de eventos pasivos para mejorar performance
+// Esto resuelve los warnings de "non-passive event listener"
+(function() {
+  const addEventListenerOriginal = EventTarget.prototype.addEventListener;
+  const removeEventListenerOriginal = EventTarget.prototype.removeEventListener;
+
+  EventTarget.prototype.addEventListener = function(type, listener, options) {
+    const passiveEvents = ['touchstart', 'touchmove', 'wheel', 'mousewheel'];
+    if (passiveEvents.includes(type) && typeof options !== 'object') {
+      options = { passive: true, capture: false };
+    } else if (typeof options === 'object' && options.passive === undefined && passiveEvents.includes(type)) {
+      options.passive = true;
+    }
+    return addEventListenerOriginal.call(this, type, listener, options);
+  };
+
+  EventTarget.prototype.removeEventListener = function(type, listener, options) {
+    return removeEventListenerOriginal.call(this, type, listener, options);
+  };
+})();
+
 // Crear cliente de React Query
 const queryClient = new QueryClient({
   defaultOptions: {
