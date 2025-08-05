@@ -8,8 +8,8 @@ export interface User {
 }
   
   export enum UserRole {
-    ADMIN = 'admin',
-    UPGD_UI = 'upgd_ui',
+    ADMIN = 'ADMIN',
+    UPGD_UI = 'UPGD_UI',
   }
   
   export interface LoginRequest {

@@ -62,11 +62,24 @@ export const CharacterizationService = {
 
   async getAllFiles(): Promise<CharacterizationFile[]> {
     const response = await api.get(`/characterization`);
+    console.log('📊 Response from backend:', response.data);
+    
+    // Verificar que la respuesta sea un array
+    if (!Array.isArray(response.data)) {
+      console.error('❌ Backend response is not an array:', response.data);
+      throw new Error('La respuesta del servidor no tiene el formato correcto');
+    }
+    
     return response.data;
   },
 
   async getFileById(id: number): Promise<CharacterizationFile> {
     const response = await api.get(`/characterization/${id}`);
+    return response.data;
+  },
+
+  async getFileRecords(id: number, page: number = 1, limit: number = 1000): Promise<{ records: any[]; total: number; hasMore: boolean }> {
+    const response = await api.get(`/characterization/${id}/records?page=${page}&limit=${limit}`);
     return response.data;
   },
 

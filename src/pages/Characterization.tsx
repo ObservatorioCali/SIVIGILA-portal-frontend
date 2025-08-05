@@ -34,9 +34,20 @@ const Characterization: React.FC = () => {
     try {
       setLoading(true);
       const response = await CharacterizationService.getAllFiles();
-      setFiles(response);
+      console.log('📊 Files loaded from service:', response);
+      
+      // Verificar que response sea un array antes de asignarlo
+      if (Array.isArray(response)) {
+        setFiles(response);
+      } else {
+        console.error('❌ Service response is not an array:', response);
+        setError('Error: formato de datos incorrecto del servidor');
+        setFiles([]); // Establecer un array vacío como fallback
+      }
     } catch (err) {
+      console.error('❌ Error loading files:', err);
       setError('Error al cargar archivos de caracterización.');
+      setFiles([]); // Establecer un array vacío como fallback
     } finally {
       setLoading(false);
     }
@@ -46,14 +57,18 @@ const Characterization: React.FC = () => {
   const handleViewAllColumns = async (file: CharacterizationFile) => {
     try {
       setLoadingData(true);
-      // El backend ahora automáticamente filtra según el rol del usuario
+      // Obtener detalles del archivo (sin records para evitar sobrecarga)
       const fileDetails = await CharacterizationService.getFileById(file.id);
       
+      // Obtener los registros por separado con el nuevo endpoint
+      const recordsData = await CharacterizationService.getFileRecords(file.id, 1, 1000);
+      
       setSelectedFileForModal(fileDetails);
-      setRecordsForModal(fileDetails.records || []);
+      setRecordsForModal(recordsData.records || []);
       setShowDataModal(true);
     } catch (err) {
       setError('Error al cargar los datos del archivo.');
+      console.error('Error detallado:', err);
     } finally {
       setLoadingData(false);
     }
