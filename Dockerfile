@@ -14,6 +14,9 @@ RUN npm audit fix --force || true
 # Copia el código fuente
 COPY . .
 
+# Usa las variables de entorno de producción para el build
+RUN cp .env.production .env
+
 # Construye la aplicación
 RUN npm run build
 
