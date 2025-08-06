@@ -36,5 +36,5 @@ EXPOSE 8080
 ENV NODE_ENV=production
 ENV PORT=8080
 
-# Ejecuta el servidor Express
-CMD ["node", "server.js"]
+# Ejecuta usando npm start que usa serve
+CMD ["npm", "start"]
