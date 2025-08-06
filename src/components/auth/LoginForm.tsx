@@ -1,7 +1,7 @@
 import '../../styles/LoginForm.css';
 import { useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
-import axios from 'axios';
+import { authService } from '../../services/auth.service';
 
 const SITE_KEY = '6LcWKI0rAAAAAPBa7C8vteFCHDQMSR0moyC0E-Sp';
 
@@ -18,16 +18,15 @@ export default function LoginForm() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:3000/auth/login', {
-        username,
+      const response = await authService.login({
+        codigo: username,
         password,
-        recaptchaToken,
       });
 
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', response.access_token);
       window.location.href = '/dashboard';
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+      setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
