@@ -10,7 +10,7 @@ class AuthService {
 
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
-      // Temporal fix: Bypass reCAPTCHA usando login-simple
+      // Temporal fix: Bypass reCAPTCHA usando login-simple - v2024.08.06
       const response = await axios.post<LoginResponse>(
         `${this.baseURL}/auth/login-simple`,
         { codigo: credentials.codigo, password: credentials.password }
