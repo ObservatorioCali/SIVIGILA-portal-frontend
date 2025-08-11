@@ -84,7 +84,11 @@ export default function DirectorioInstitucional() {
   const handleEntrySuccess = (message) => { setShowEntryModal(false); setSuccessMessage(message); setShowSuccessModal(true); loadEntries(); };
   const handleDeleteEntry = async (entry) => { try { await DirectoryService.deleteEntry(entry.id); setSuccessMessage(`Institución "${entry.nombreInstitution}" eliminada exitosamente.`); setShowSuccessModal(true); loadEntries(); return true; } catch { setError('Error al eliminar la institución.'); return false; } };
 
-  useEffect(() => { loadEntries(); }, []);
+  useEffect(() => {
+    loadEntries();
+    // loadEntries se define en el componente y no cambia entre renders relevantes para este efecto inicial
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

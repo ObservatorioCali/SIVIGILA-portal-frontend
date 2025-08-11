@@ -25,7 +25,7 @@ app.get('*', (req, res) => {
 });
 
 // Manejar errores
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error('Error:', err);
   res.status(500).send('Something broke!');
 });

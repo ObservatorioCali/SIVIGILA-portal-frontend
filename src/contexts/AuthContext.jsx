@@ -1,5 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { authService } from '@/services/auth.service.js';
 
 const AuthContext = createContext(undefined);
@@ -9,7 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Ejecutar verificación inicial de autenticación una sola vez al montar
     checkAuthState();
+    // checkAuthState no se agrega a dependencias porque su referencia es estable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkAuthState = async () => {

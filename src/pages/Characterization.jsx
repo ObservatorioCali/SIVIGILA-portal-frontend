@@ -54,7 +54,11 @@ export default function Characterization() {
   const handleObservationAdded = async () => {
     await loadFiles();
     if (selectedFileForModal) {
-      try { const updatedFile = await CharacterizationService.getFileById(selectedFileForModal.id); setSelectedFileForModal(updatedFile); } catch {}
+      try {
+        const updatedFile = await CharacterizationService.getFileById(selectedFileForModal.id); setSelectedFileForModal(updatedFile);
+      } catch (e) {
+        // Silenciar error opcional al refrescar archivo (no crítico para UX)
+      }
     }
   };
 
